@@ -1,0 +1,34 @@
+#!/usr/bin/env python3
+
+# TODO
+import os
+import sys
+
+from analyzer import Analyzer
+from termcolor import colored
+from helpers import get_user_timeline
+
+
+if len(sys.argv) != 2:
+    sys.exit("Usage: ./tweets @screen_name")
+
+tweets = get_user_timeline(sys.argv[1].lstrip('@'),50)
+
+# absolute paths to lists
+positives = os.path.join(sys.path[0], "positive-words.txt")
+negatives = os.path.join(sys.path[0], "negative-words.txt")
+
+# instantiate analyzer
+analyzer = Analyzer(positives, negatives)
+if tweets != None:
+    for tweet in tweets:
+        score = analyzer.analyze(tweet)
+        if score > 0.0:
+            print(colored("{} {}".format(score,tweet), "green"))
+        elif score < 0.0:
+            print(colored("{} {}".format(score,tweet), "red"))
+        else:
+            print(colored("{} {}".format(score,tweet), "yellow"))
+            
+else:
+    sys.exit("User not found or protected")
